@@ -4,6 +4,12 @@ The web client for Ghost Messages, an anonymous messaging app (the Express / Mon
 
 Built with React 19, Vite, Tailwind CSS 4 and React Router. No UI kit: every component is in `src/components`.
 
+| | |
+|---|---|
+| Live app | [ghost-messages-cloudinary-frontend.vercel.app](https://ghost-messages-cloudinary-frontend.vercel.app/) |
+| API (Node.js / Express) | [ANT0NI0US/Ghost-Messages-Cloudinary-Backend](https://github.com/ANT0NI0US/Ghost-Messages-Cloudinary-Backend) · [live](https://ghost-messages-cloudinary.vercel.app/) |
+| Demo video | [Watch on LinkedIn](https://lnkd.in/p/eFTp7mVX) |
+
 ## What's inside
 
 | Page | Route | Backend endpoints |
@@ -38,7 +44,7 @@ npm run dev            # http://localhost:3000
 
 The dev server runs on port 3000 because the backend's development `FRONTEND_URL` is `http://localhost:3000`, so password-reset links open here.
 
-In development the app calls `/api/...` and Vite proxies it to `DEV_BACKEND_URL`. The backend rate limiter only allows Egyptian IPs and `localhost` has no country, so the proxy sends an `x-forwarded-for` header with an Egyptian IP (`DEV_FORWARDED_IP`).
+In development the app calls `/api/...` and Vite proxies it to `DEV_BACKEND_URL`. The backend's rate limiter keys requests by IP, and its optional Egypt-only rule needs a real one: `localhost` has no country, so the proxy sends an `x-forwarded-for` header with `DEV_FORWARDED_IP`.
 
 ## Environment
 
@@ -49,11 +55,15 @@ In development the app calls `/api/...` and Vite proxies it to `DEV_BACKEND_URL`
 | `DEV_BACKEND_URL` | development | Where the Vite proxy sends `/api` (default `http://localhost:4000`). |
 | `DEV_FORWARDED_IP` | development | IP the proxy presents to the backend rate limiter. |
 
+`.env` and `.env.production` stay out of git. `VITE_` values are built into the public JavaScript bundle, so never put a secret in one.
+
 ## Deploy (Vercel)
 
 1. Import the repo in Vercel. Framework preset: **Vite** (build `npm run build`, output `dist`).
-2. Set `VITE_API_URL` to the deployed backend URL.
-3. Set the backend's `FRONTEND_URL` to the Vercel URL so reset links point to it.
+2. In the Vercel project settings, set `VITE_API_URL` to the deployed backend URL (and `VITE_GOOGLE_CLIENT_ID` for Google sign-in).
+3. **Redeploy** after changing them: Vite writes these values into the bundle at build time, so a running deployment keeps the old ones.
+4. Set the backend's `FRONTEND_URL` to the Vercel URL so reset links point to it.
+5. For Google sign-in, add the Vercel URL to the OAuth client's **Authorized JavaScript origins** in Google Cloud Console.
 
 `vercel.json` rewrites every path to `index.html`, so deep links like `/u/<id>` and `/reset-password/<token>` work on refresh.
 
